@@ -24,4 +24,4 @@ def get_file_info(working_directory, directory="."):
         print(f"Error: {e}")
 
         #DIFFERENCE BETWEEN string += string and append to list then "\n".join(list) is massive in terms of
-        #performance. check lesson boots chat or own documentation for more info.
+        #performance. check lesson boots chat or own documentation for more
