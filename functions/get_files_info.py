@@ -21,7 +21,7 @@ def get_file_info(working_directory, directory="."):
             file_info += f"- {item}: file_size={file_size} bytes, is_dir={is_dir}"
         return file_info
     except Exception as e:
-        print(f"Error: {e}")
+        return f"Error: {e}"
 
         #DIFFERENCE BETWEEN string += string and append to list then "\n".join(list) is massive in terms of
         #performance. check lesson boots chat or own documentation for more

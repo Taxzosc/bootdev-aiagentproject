@@ -7,9 +7,9 @@ def get_file_content(working_directory, file_path):
         target_file = os.path.normpath(os.path.join(working_dir_abs, file_path))
         valid_target_file = os.path.commonpath([working_dir_abs, target_file]) == working_dir_abs
         if valid_target_file == False:
-            f'Error: Cannot read "{file_path}" as it is outside the permitted working directory'
+            return f'Error: Cannot read "{file_path}" as it is outside the permitted working directory'
         if os.path.isfile(target_file) == False:
-            f'Error: File not found or is not a regular file: "{file_path}"'
+            return f'Error: File not found or is not a regular file: "{file_path}"'
         with open(target_file, "r") as f:
             read_file = f.read(MAX_CHARS)
             if f.read(1):
@@ -17,8 +17,7 @@ def get_file_content(working_directory, file_path):
         return read_file
 
     except Exception as e:
-        print(f"Error: {e}")
-
+        return f"Error: {e}"
 
 
 
