@@ -1,4 +1,6 @@
 import os
+from google import genai
+from google.genai import types
 from config import MAX_CHARS
 
 def get_file_content(working_directory, file_path):
@@ -18,3 +20,19 @@ def get_file_content(working_directory, file_path):
 
     except Exception as e:
         return f"Error: {e}"
+    
+
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
+    description=f"reads the content of a file in a file relative to the working directory, providing the entire text of a file, capped at a parameter of {MAX_CHARS} characters",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="File path to read content from, relative to the working directory",
+            ),
+        },
+        required=["file_path"]
+    ),
+)

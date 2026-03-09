@@ -1,5 +1,8 @@
 import os
 import subprocess
+from google import genai
+from google.genai import types
+
 
 def run_python_file(working_directory, file_path, args=None):
     try:
@@ -35,7 +38,27 @@ def run_python_file(working_directory, file_path, args=None):
     except Exception as e:
         return f"Error: executing Python file: {e}"
     
-
+schema_run_python_file = types.FunctionDeclaration(
+    name="run_python_file",
+    description="Runs specified python file with the given args if they are given(args defaults to None), within the working directory and returns its output",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="File path to the file which will be run, relative to the working directory",
+            ),
+            "args": types.Schema(
+                type=types.Type.ARRAY,
+                items=types.Schema(
+                    type=types.Type.STRING,
+                ),
+                description="Arguements given to the function",
+            ),
+        },
+        required=["file_path"],
+    ),
+)
 
     # if process_result.stderr == None or process_result.stdout == None:
     # i had this in my code and it still passed. 
