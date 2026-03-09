@@ -18,16 +18,3 @@ def get_file_content(working_directory, file_path):
 
     except Exception as e:
         return f"Error: {e}"
-
-
-
-    # working_dir_abs = os.path.abspath(working_directory)
-    # target_dir = os.path.normpath(os.path.join(working_dir_abs, directory))
-    # valid_target_dir = os.path.commonpath([working_dir_abs, directory]) == working_dir_abs #returns true/false.
-    # if valid_target_dir == False:
-    #     return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
-
-    # if os.path.isdir(target_dir) == False:
-    #     return f'Error: "{directory}" is not a directory'
-    
-    # return target_dir
