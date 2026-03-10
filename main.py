@@ -4,7 +4,7 @@ from google import genai
 from google.genai import types
 import argparse
 from prompts import system_prompt
-from functions.call_function import available_functions
+from functions.call_function import call_function, available_functions
 
 def main():
     load_dotenv()
@@ -25,6 +25,7 @@ def main():
     generate_content(client, messages, args.verbose)
 
 
+
 def generate_content(client, messages, verbose):
     response = client.models.generate_content(
         model="gemini-2.5-flash",
@@ -40,8 +41,19 @@ def generate_content(client, messages, verbose):
 
     print("Response:")
     if response.function_calls:
+        function_results = []
         for function_call in response.function_calls:
-            print(f"Calling function: {function_call.name}({function_call.args})")
+            function_call_result = call_function(function_call)
+            if not function_call_result.parts:
+                raise RuntimeError("function_call_result.parts is empty")
+            if not function_call_result.parts[0].function_response:
+                raise RuntimeError("function_call_result.parts[0].function_response is empty or None")
+            if not function_call_result.parts[0].function_response.response:
+                raise RuntimeError("function_call_result.parts[0].function_response.response is empty or None")
+            function_results.append(function_call_result.parts[0])
+            if verbose:
+                print(f"-> {function_call_result.parts[0].function_response.response}")
+            # print(f"Calling function: {function_call.name}({function_call.args})")
     if not response.function_calls:
         print(response.text)
 
