@@ -1,4 +1,6 @@
 import os
+import sys
+from config import MAX_ITERATIONS
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
@@ -21,8 +23,17 @@ def main():
     messages = [types.Content(role="user", parts=[types.Part(text=args.user_prompt)])]
     if args.verbose:
         print(f"User prompt: {args.user_prompt}\n")
-
-    generate_content(client, messages, args.verbose)
+    for _ in range(MAX_ITERATIONS):
+        try:
+            final_response = generate_content(client, messages, args.verbose)
+            if final_response:
+                print("Final response:")
+                print(final_response)
+                return
+        except Exception as e:
+            print(f"Error in generate_content: {e}")
+    print(f"Maximum iterations ({MAX_ITERATIONS}) reached")
+    sys.exit(1)
 
 
 
@@ -38,24 +49,31 @@ def generate_content(client, messages, verbose):
     if verbose:
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+    
 
-    print("Response:")
-    if response.function_calls:
-        function_results = []
-        for function_call in response.function_calls:
-            function_call_result = call_function(function_call)
-            if not function_call_result.parts:
-                raise RuntimeError("function_call_result.parts is empty")
-            if not function_call_result.parts[0].function_response:
-                raise RuntimeError("function_call_result.parts[0].function_response is empty or None")
-            if not function_call_result.parts[0].function_response.response:
-                raise RuntimeError("function_call_result.parts[0].function_response.response is empty or None")
-            function_results.append(function_call_result.parts[0])
-            if verbose:
-                print(f"-> {function_call_result.parts[0].function_response.response}")
-            # print(f"Calling function: {function_call.name}({function_call.args})")
+    if response.candidates:
+        for candidate in response.candidates:
+            if candidate.content:
+                messages.append(candidate.content)
+    
     if not response.function_calls:
-        print(response.text)
+        return response.text
+
+    function_results = []
+    for function_call in response.function_calls:
+        function_call_result = call_function(function_call)
+        if not function_call_result.parts:
+            raise RuntimeError("function_call_result.parts is empty")
+        if not function_call_result.parts[0].function_response:
+            raise RuntimeError("function_call_result.parts[0].function_response is empty or None")
+        if not function_call_result.parts[0].function_response.response:
+            raise RuntimeError("function_call_result.parts[0].function_response.response is empty or None")
+        function_results.append(function_call_result.parts[0])
+        if verbose:
+            print(f"-> {function_call_result.parts[0].function_response.response}")
+        # print(f"Calling function: {function_call.name}({function_call.args})")
+    
+    messages.append(types.Content(role="user", parts=function_results))
 
 if __name__ == "__main__":
     main()
